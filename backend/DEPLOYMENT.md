@@ -22,14 +22,16 @@
    ```
    NODE_ENV=production
    PORT=5000
-   MONGODB_URI=<your-mongodb-atlas-connection-string>
-   JWT_SECRET=<generate-random-secret-key>
+   MONGODB_URI=mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@YOUR_CLUSTER.mongodb.net/campus-connect
+   JWT_SECRET=GENERATE_A_RANDOM_SECRET_KEY_HERE
    JWT_EXPIRE=7d
-   FRONTEND_URL=<your-frontend-vercel-url>
-   CLIENT_URL=<your-frontend-vercel-url>
+   FRONTEND_URL=https://your-app.vercel.app
+   CLIENT_URL=https://your-app.vercel.app
    WEBPUSHR_PUBLIC_KEY=683978b545bedb748e1a5a1e5fdb0a79
    WEBPUSHR_AUTH_TOKEN=117308
    ```
+   
+   **⚠️ WARNING**: Replace ALL placeholder values with your actual credentials. Never commit real credentials to GitHub!
 
 4. **Create MongoDB Atlas Database** (Free):
    - Go to: https://www.mongodb.com/cloud/atlas
@@ -96,7 +98,8 @@
    - Choose "Connect your application"
    - Copy connection string
    - Replace `<password>` with your database user password
-   - Example: `mongodb+srv://user:password@cluster0.xxxxx.mongodb.net/campus-connect?retryWrites=true&w=majority`
+   - Format: `mongodb+srv://<username>:<password>@<cluster-name>.mongodb.net/campus-connect?retryWrites=true&w=majority`
+   - **IMPORTANT**: Never commit real credentials to GitHub!
 
 ---
 
