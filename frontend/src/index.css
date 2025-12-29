@@ -1,0 +1,35 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #e3f2fd;
+}
+
+.login-container {
+  width: 350px;
+  margin: 100px auto;
+  padding: 25px;
+  background: white;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.role-select {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  margin: 8px 0;
+}
+
+button {
+  width: 100%;
+  padding: 8px;
+  background: #1976d2;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
