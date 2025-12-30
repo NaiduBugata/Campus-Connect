@@ -1,9 +1,5 @@
 const mongoose = require('mongoose');
 
-// Disable buffering for serverless
-mongoose.set('bufferCommands', false);
-mongoose.set('bufferTimeoutMS', 60000);
-
 // Cache the MongoDB connection for serverless
 let cachedConnection = null;
 
@@ -24,7 +20,6 @@ const connectDB = async () => {
       connectTimeoutMS: 60000,
       maxPoolSize: 1, // Limit pool size for serverless
       minPoolSize: 0,
-      bufferCommands: false, // Disable buffering
     });
 
     cachedConnection = conn;
