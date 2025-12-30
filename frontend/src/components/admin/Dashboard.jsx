@@ -164,7 +164,6 @@ function DashboardOverview({ onNavigate }) {
             <span className="icon">📊</span>
             <span>View Analytics</span>
           </button>
-          </button>
           <button className="action-btn" onClick={() => alert('Subscriber management coming soon!')}>
             <span className="icon">👥</span>
             <span>Manage Subscribers</span>
