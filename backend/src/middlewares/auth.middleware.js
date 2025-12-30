@@ -22,16 +22,21 @@ const protect = async (req, res, next) => {
       // Get admin from token
       req.user = await Admin.findById(decoded.id).select('-password');
 
-      next();
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          message: 'Not authorized, user not found'
+        });
+      }
+
+      return next();
     } catch (error) {
       return res.status(401).json({
         success: false,
         message: 'Not authorized, token failed'
       });
     }
-  }
-
-  if (!token) {
+  } else {
     return res.status(401).json({
       success: false,
       message: 'Not authorized, no token'
