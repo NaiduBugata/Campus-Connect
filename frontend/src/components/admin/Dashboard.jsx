@@ -1,26 +1,47 @@
 import { useState, useEffect } from 'react';
+import { getNotificationStats } from '../../api/notification.api';
 
 function DashboardOverview({ onNavigate }) {
   const [stats, setStats] = useState({
     totalNotifications: 0,
     activeNotifications: 0,
     totalSubscribers: 0,
-    recentActivity: []
+    totalSent: 0,
+    totalDelivered: 0,
+    totalRead: 0
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate fetching stats (replace with actual API call)
-    setStats({
-      totalNotifications: 12,
-      activeNotifications: 8,
-      totalSubscribers: 245,
-      recentActivity: [
-        { id: 1, action: 'New notification created', time: '2 hours ago' },
-        { id: 2, action: 'Notification sent to 245 subscribers', time: '5 hours ago' },
-        { id: 3, action: 'Admin logged in', time: '1 day ago' }
-      ]
-    });
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        
+        if (token) {
+          const response = await getNotificationStats(token);
+          
+          if (response.success) {
+            setStats(response.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+    
+    // Refresh stats every 30 seconds
+    const interval = setInterval(fetchStats, 30000);
+    return () => clearInterval(interval);
   }, []);
+
+  if (loading) {
+    return <div className="dashboard-overview"><div className="loading">Loading dashboard...</div></div>;
+  }
 
   return (
     <div className="dashboard-overview">
@@ -31,7 +52,7 @@ function DashboardOverview({ onNavigate }) {
         <div className="stat-card">
           <div className="stat-icon">📧</div>
           <div className="stat-info">
-            <h3>{stats.totalNotifications}</h3>
+            <h3>{stats.totalNotifications || 0}</h3>
             <p>Total Notifications</p>
           </div>
         </div>
@@ -39,7 +60,7 @@ function DashboardOverview({ onNavigate }) {
         <div className="stat-card">
           <div className="stat-icon">✅</div>
           <div className="stat-info">
-            <h3>{stats.activeNotifications}</h3>
+            <h3>{stats.activeNotifications || 0}</h3>
             <p>Active Notifications</p>
           </div>
         </div>
@@ -47,25 +68,33 @@ function DashboardOverview({ onNavigate }) {
         <div className="stat-card">
           <div className="stat-icon">👥</div>
           <div className="stat-info">
-            <h3>{stats.totalSubscribers}</h3>
+            <h3>{stats.totalSubscribers || 0}</h3>
             <p>Total Subscribers</p>
           </div>
         </div>
-      </div>
 
-      {/* Recent Activity */}
-      <div className="recent-activity">
-        <h3>Recent Activity</h3>
-        <div className="activity-list">
-          {stats.recentActivity.map(activity => (
-            <div key={activity.id} className="activity-item">
-              <div className="activity-dot"></div>
-              <div className="activity-content">
-                <p>{activity.action}</p>
-                <span>{activity.time}</span>
-              </div>
-            </div>
-          ))}
+        <div className="stat-card">
+          <div className="stat-icon">📤</div>
+          <div className="stat-info">
+            <h3>{stats.totalSent || 0}</h3>
+            <p>Total Sent</p>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon">📬</div>
+          <div className="stat-info">
+            <h3>{stats.totalDelivered || 0}</h3>
+            <p>Delivered</p>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon">👁️</div>
+          <div className="stat-info">
+            <h3>{stats.totalRead || 0}</h3>
+            <p>Read</p>
+          </div>
         </div>
       </div>
 
