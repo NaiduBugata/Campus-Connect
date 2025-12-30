@@ -4,22 +4,8 @@ const connectDB = require('./config/db');
 
 const PORT = process.env.PORT || 5000;
 
-// For Vercel serverless, export app with lazy DB connection
+// For Vercel serverless, just export app (DB connection is handled in app.js)
 if (process.env.VERCEL) {
-  // Middleware to ensure DB connection before each request
-  app.use(async (req, res, next) => {
-    try {
-      await connectDB();
-      next();
-    } catch (error) {
-      console.error('DB connection error:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Database connection failed' 
-      });
-    }
-  });
-  
   module.exports = app;
 } else {
   // For local development, connect once on startup

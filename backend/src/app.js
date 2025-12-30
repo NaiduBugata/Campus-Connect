@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const subscriberRoutes = require('./routes/subscriber.routes');
@@ -19,6 +20,22 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// For Vercel serverless - ensure DB connection before each request
+if (process.env.VERCEL) {
+  app.use(async (req, res, next) => {
+    try {
+      await connectDB();
+      next();
+    } catch (error) {
+      console.error('DB connection error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Database connection failed' 
+      });
+    }
+  });
+}
 
 // Routes
 app.use('/api/auth', authRoutes);
