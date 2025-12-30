@@ -22,7 +22,16 @@ function DashboardOverview({ onNavigate }) {
           const response = await getNotificationStats(token);
           
           if (response.success) {
-            setStats(response.data);
+            // Map the actual API response structure
+            setStats({
+              totalNotifications: response.stats?.total || 0,
+              activeNotifications: response.stats?.active || 0,
+              inactiveNotifications: response.stats?.inactive || 0,
+              totalRead: response.stats?.read || 0,
+              totalUnread: response.stats?.unread || 0,
+              totalSubscribers: 0, // Will be updated when subscriber API is added
+              pendingResends: response.stats?.resend?.pendingResends || 0
+            });
           }
         }
       } catch (error) {
@@ -76,24 +85,24 @@ function DashboardOverview({ onNavigate }) {
         <div className="stat-card">
           <div className="stat-icon">📤</div>
           <div className="stat-info">
-            <h3>{stats.totalSent || 0}</h3>
-            <p>Total Sent</p>
+            <h3>{stats.totalUnread || 0}</h3>
+            <p>Unread</p>
           </div>
         </div>
 
         <div className="stat-card">
           <div className="stat-icon">📬</div>
           <div className="stat-info">
-            <h3>{stats.totalDelivered || 0}</h3>
-            <p>Delivered</p>
+            <h3>{stats.totalRead || 0}</h3>
+            <p>Read</p>
           </div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">👁️</div>
+          <div className="stat-icon">🔄</div>
           <div className="stat-info">
-            <h3>{stats.totalRead || 0}</h3>
-            <p>Read</p>
+            <h3>{stats.pendingResends || 0}</h3>
+            <p>Pending Resends</p>
           </div>
         </div>
       </div>
