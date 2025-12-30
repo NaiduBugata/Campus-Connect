@@ -66,6 +66,44 @@ app.get('/api/db-test', async (req, res) => {
   });
 });
 
+// Webpushr test route
+app.get('/api/webpushr-test', async (req, res) => {
+  const webpushrConfig = require('./config/webpushr');
+  try {
+    const payload = {
+      title: 'Test from API',
+      message: 'Testing Webpushr configuration',
+      target_url: process.env.FRONTEND_URL || 'https://frontend-inky-six-29.vercel.app',
+      name: 'TEST_' + Date.now(),
+      auto_hide: 0,
+      send_at: 'now'
+    };
+    const result = await webpushrConfig.sendNotification(payload);
+    res.status(200).json({
+      success: true,
+      message: 'Webpushr test successful',
+      result: result,
+      credentials: {
+        hasRestApiKey: !!process.env.WEBPUSHR_REST_API_KEY,
+        hasAuthToken: !!process.env.WEBPUSHR_AUTH_TOKEN,
+        hasPublicKey: !!process.env.WEBPUSHR_PUBLIC_KEY
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Webpushr test failed',
+      error: error.message,
+      details: error.response?.data || 'No additional details',
+      credentials: {
+        hasRestApiKey: !!process.env.WEBPUSHR_REST_API_KEY,
+        hasAuthToken: !!process.env.WEBPUSHR_AUTH_TOKEN,
+        hasPublicKey: !!process.env.WEBPUSHR_PUBLIC_KEY
+      }
+    });
+  }
+});
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
