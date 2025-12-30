@@ -10,8 +10,8 @@ class WebpushrConfig {
 
   getHeaders() {
     return {
-      'webpushrKey': this.restApiKey,
-      'webpushrAuthToken': this.authToken,
+      'webpushrkey': this.restApiKey,
+      'webpushrauthtoken': this.authToken,
       'Content-Type': 'application/json'
     };
   }
