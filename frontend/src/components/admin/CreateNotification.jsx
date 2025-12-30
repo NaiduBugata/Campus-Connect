@@ -39,7 +39,20 @@ function CreateNotification() {
       
       if (response.success) {
         console.log('Notification created:', response.data);
-        alert(`✅ Notification created successfully!\n\nID: ${response.data.notification_id}\nPush sent: ${response.data.send_count > 0 ? 'Yes' : 'Pending'}`);
+        
+        // Check push status
+        let alertMessage = `✅ Notification created successfully!\n\nID: ${response.data.notification_id}\n`;
+        
+        if (response.pushStatus?.sent) {
+          alertMessage += `Push: ✅ Sent successfully!`;
+        } else if (response.pushStatus?.error) {
+          alertMessage += `Push: ❌ Failed\nError: ${response.pushStatus.error}\n\n⚠️ Check Webpushr credentials in backend environment variables.`;
+          console.error('Push error details:', response.pushStatus);
+        } else {
+          alertMessage += `Push: ⏳ Status unknown`;
+        }
+        
+        alert(alertMessage);
         
         // Reset form
         setFormData({

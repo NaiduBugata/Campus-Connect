@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AnnouncementList from '../components/user/AnnouncementList';
+import EventList from '../components/user/EventList';
 import SubscribeButton from '../components/user/SubscribeButton';
 import NotificationStatus from '../components/user/NotificationStatus';
 import '../styles/studentDashboard.css';
@@ -25,6 +26,8 @@ function StudentDashboard() {
     switch (activeTab) {
       case 'announcements':
         return <AnnouncementList />;
+      case 'events':
+        return <EventList />;
       case 'status':
         return <NotificationStatus isSubscribed={isSubscribed} />;
       default:
@@ -78,6 +81,12 @@ function StudentDashboard() {
             onClick={() => setActiveTab('announcements')}
           >
             📢 Announcements
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'events' ? 'active' : ''}`}
+            onClick={() => setActiveTab('events')}
+          >
+            📅 Events
           </button>
           <button
             className={`tab-btn ${activeTab === 'status' ? 'active' : ''}`}

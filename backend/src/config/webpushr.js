@@ -10,23 +10,45 @@ class WebpushrConfig {
 
   getHeaders() {
     // Webpushr REST API expects these exact header names
-    return {
+    const headers = {
       'webpushrKey': String(this.restApiKey).trim(),
       'webpushrAuthToken': String(this.authToken).trim(),
       'Content-Type': 'application/json'
     };
+    
+    // Log for debugging (remove in production)
+    console.log('Webpushr Headers:', {
+      hasRestApiKey: !!this.restApiKey && this.restApiKey !== '',
+      hasAuthToken: !!this.authToken && this.authToken !== '',
+      restApiKeyLength: this.restApiKey?.length || 0,
+      authTokenLength: this.authToken?.length || 0
+    });
+    
+    return headers;
   }
 
   async sendNotification(payload) {
     try {
+      console.log('Sending notification to Webpushr:', {
+        title: payload.title,
+        endpoint: `${this.apiEndpoint}/notification/send/all`
+      });
+      
       const response = await axios.post(
         `${this.apiEndpoint}/notification/send/all`,
         payload,
         { headers: this.getHeaders() }
       );
+      
+      console.log('Webpushr response:', response.data);
       return response.data;
     } catch (error) {
       console.error('Webpushr API Error:', error.response?.data || error.message);
+      console.error('Error details:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
       throw error;
     }
   }

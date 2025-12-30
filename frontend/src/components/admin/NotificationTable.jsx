@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { getNotifications, deleteNotification, updateNotification } from '../../api/notification.api';
+import AlertBox from '../common/AlertBox';
+import ConfirmDialog from '../common/ConfirmDialog';
 
 function NotificationTable() {
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [alert, setAlert] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   const fetchNotifications = async () => {
     try {
@@ -30,7 +34,7 @@ function NotificationTable() {
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
-      alert('Failed to load notifications');
+      setAlert({ message: 'Failed to load notifications', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -45,21 +49,26 @@ function NotificationTable() {
   }, []);
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this notification?')) {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await deleteNotification(id, token);
+    setConfirmDelete(id);
+  };
+
+  const confirmDeleteAction = async () => {
+    const id = confirmDelete;
+    setConfirmDelete(null);
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await deleteNotification(id, token);
         
-        if (response.success) {
-          setNotifications(notifications.filter(n => n.id !== id));
-          alert('✅ Notification deleted');
-        } else {
-          alert('❌ Failed to delete notification');
-        }
-      } catch (error) {
-        console.error('Error deleting notification:', error);
-        alert('❌ Failed to delete notification');
+      if (response.success) {
+        setNotifications(notifications.filter(n => n.id !== id));
+        setAlert({ message: 'Notification deleted', type: 'success' });
+      } else {
+        setAlert({ message: 'Failed to delete notification', type: 'error' });
       }
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      setAlert({ message: 'Failed to delete notification', type: 'error' });
     }
   };
 
@@ -75,12 +84,13 @@ function NotificationTable() {
         setNotifications(notifications.map(n => 
           n.id === id ? { ...n, status: newStatus } : n
         ));
+        setAlert({ message: `Notification ${newStatus}`, type: 'success' });
       } else {
-        alert('❌ Failed to update notification status');
+        setAlert({ message: 'Failed to update notification status', type: 'error' });
       }
     } catch (error) {
       console.error('Error updating notification:', error);
-      alert('❌ Failed to update notification status');
+      setAlert({ message: 'Failed to update notification status', type: 'error' });
     }
   };
 
@@ -188,6 +198,22 @@ function NotificationTable() {
           </div>
         )}
       </div>
+
+      {alert && (
+        <AlertBox
+          message={alert.message}
+          type={alert.type}
+          onClose={() => setAlert(null)}
+        />
+      )}
+
+      {confirmDelete && (
+        <ConfirmDialog
+          message="Are you sure you want to delete this notification?"
+          onConfirm={confirmDeleteAction}
+          onCancel={() => setConfirmDelete(null)}
+        />
+      )}
     </div>
   );
 }

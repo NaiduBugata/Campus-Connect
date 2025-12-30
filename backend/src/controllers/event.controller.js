@@ -1,4 +1,6 @@
 const Event = require('../models/Event');
+const Notification = require('../models/Notification');
+const pushService = require('../services/push.service');
 
 // @desc    Get all events
 // @route   GET /api/events
@@ -44,10 +46,43 @@ const createEvent = async (req, res) => {
       createdBy: req.user.id
     });
 
+    // Create notification for the event
+    const notification_id = `N${Date.now()}${Math.floor(Math.random() * 1000)}`;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const url = `${frontendUrl}/notification-read?id=${notification_id}`;
+
+    const notificationTitle = `📅 New Event: ${title}`;
+    const notificationMessage = `${description}\n📍 ${location}\n🕒 ${date} at ${time}`;
+
+    // Save notification to database
+    const notification = await Notification.create({
+      notification_id,
+      title: notificationTitle,
+      message: notificationMessage,
+      type: 'announcement',
+      priority: category === 'career' ? 'high' : 'normal',
+      url,
+      createdBy: req.user.id
+    });
+
+    // Send push notification to all subscribers
+    try {
+      await pushService.sendToAll({
+        title: notificationTitle,
+        message: notificationMessage,
+        url,
+        notification_id
+      });
+    } catch (pushError) {
+      console.error('Push notification error for event:', pushError);
+      // Continue even if push fails
+    }
+
     res.status(201).json({
       success: true,
-      message: 'Event created successfully',
-      data: event
+      message: 'Event created successfully and notification sent',
+      data: event,
+      notification: notification
     });
   } catch (error) {
     res.status(500).json({

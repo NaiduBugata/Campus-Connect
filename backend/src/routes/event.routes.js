@@ -8,7 +8,10 @@ const {
 } = require('../controllers/event.controller');
 const { protect } = require('../middlewares/auth.middleware');
 
-router.get('/', protect, getEvents);
+// Public route (students can view events)
+router.get('/', getEvents);
+
+// Protected routes (admin only)
 router.post('/', protect, createEvent);
 router.put('/:id', protect, updateEvent);
 router.delete('/:id', protect, deleteEvent);

@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { eventAPI } from '../../api/event.api';
+import AlertBox from '../common/AlertBox';
+import ConfirmDialog from '../common/ConfirmDialog';
 import '../../styles/events.css';
 
 function Events() {
@@ -15,55 +18,27 @@ function Events() {
   });
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('all');
+  const [alert, setAlert] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      const response = await eventAPI.getAll();
+      
+      if (response.success) {
+        setEvents(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      setAlert({ message: 'Failed to load events', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Simulate fetching events (replace with actual API call)
-    setEvents([
-      {
-        id: 1,
-        title: 'Tech Conference 2026',
-        description: 'Annual technology conference featuring latest innovations and trends',
-        date: '2026-02-15',
-        time: '09:00 AM',
-        location: 'Main Auditorium',
-        category: 'conference',
-        status: 'upcoming',
-        attendees: 150
-      },
-      {
-        id: 2,
-        title: 'AI Workshop',
-        description: 'Hands-on workshop on Artificial Intelligence and Machine Learning',
-        date: '2026-01-20',
-        time: '02:00 PM',
-        location: 'Lab 301',
-        category: 'workshop',
-        status: 'upcoming',
-        attendees: 50
-      },
-      {
-        id: 3,
-        title: 'Web Development Seminar',
-        description: 'Learn modern web development techniques and best practices',
-        date: '2025-12-20',
-        time: '10:30 AM',
-        location: 'Conference Hall',
-        category: 'seminar',
-        status: 'completed',
-        attendees: 80
-      },
-      {
-        id: 4,
-        title: 'Career Fair',
-        description: 'Meet recruiters from top tech companies',
-        date: '2026-03-10',
-        time: '11:00 AM',
-        location: 'Campus Ground',
-        category: 'career',
-        status: 'upcoming',
-        attendees: 200
-      }
-    ]);
+    fetchEvents();
   }, []);
 
   const handleChange = (e) => {
@@ -78,50 +53,85 @@ function Events() {
     setLoading(true);
 
     try {
-      // Simulate API call (replace with actual backend call)
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const token = localStorage.getItem('token');
       
-      const newEvent = {
-        id: events.length + 1,
-        ...formData,
-        attendees: 0
-      };
+      if (!token) {
+        setAlert({ message: 'You must be logged in to create events', type: 'error' });
+        return;
+      }
+
+      const response = await eventAPI.create(formData, token);
       
-      setEvents([newEvent, ...events]);
-      alert('✅ Event created successfully!');
-      
-      // Reset form and switch to list view
-      setFormData({
-        title: '',
-        description: '',
-        date: '',
-        time: '',
-        location: '',
-        category: 'seminar',
-        status: 'upcoming'
-      });
-      setActiveView('list');
+      if (response.success) {
+        setAlert({ message: 'Event created successfully!', type: 'success' });
+        
+        // Reset form and switch to list view
+        setFormData({
+          title: '',
+          description: '',
+          date: '',
+          time: '',
+          location: '',
+          category: 'seminar',
+          status: 'upcoming'
+        });
+        setActiveView('list');
+        
+        // Refresh events list
+        fetchEvents();
+      } else {
+        setAlert({ message: response.message || 'Failed to create event', type: 'error' });
+      }
     } catch (error) {
       console.error('Error creating event:', error);
-      alert('❌ Failed to create event');
+      setAlert({ message: error.message || 'Failed to create event', type: 'error' });
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this event?')) {
-      setEvents(events.filter(e => e.id !== id));
-      alert('✅ Event deleted');
+    setConfirmDelete(id);
+  };
+
+  const confirmDeleteAction = async () => {
+    const id = confirmDelete;
+    setConfirmDelete(null);
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await eventAPI.delete(id, token);
+      
+      if (response.success) {
+        setAlert({ message: 'Event deleted', type: 'success' });
+        fetchEvents();
+      } else {
+        setAlert({ message: 'Failed to delete event', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      setAlert({ message: 'Failed to delete event', type: 'error' });
     }
   };
 
-  const handleToggleStatus = (id) => {
-    setEvents(events.map(e => 
-      e.id === id 
-        ? { ...e, status: e.status === 'upcoming' ? 'completed' : 'upcoming' } 
-        : e
-    ));
+  const handleToggleStatus = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      const event = events.find(e => e._id === id || e.id === id);
+      const newStatus = event.status === 'upcoming' ? 'completed' : 'upcoming';
+      
+      const response = await eventAPI.update(id, { status: newStatus }, token);
+      
+      if (response.success) {
+        setAlert({ message: `Event marked as ${newStatus}`, type: 'success' });
+        fetchEvents();
+      } else {
+        setAlert({ message: 'Failed to update event', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Error updating event:', error);
+      setAlert({ message: 'Failed to update event', type: 'error' });
+    }
   };
 
   const filteredEvents = filter === 'all' 
@@ -331,14 +341,14 @@ function Events() {
                 <div className="event-actions">
                   <button
                     className="action-btn edit-btn"
-                    onClick={() => handleToggleStatus(event.id)}
+                    onClick={() => handleToggleStatus(event._id || event.id)}
                     title="Toggle Status"
                   >
                     {event.status === 'upcoming' ? '✅' : '🔄'} Toggle
                   </button>
                   <button
                     className="action-btn delete-btn"
-                    onClick={() => handleDelete(event.id)}
+                    onClick={() => handleDelete(event._id || event.id)}
                     title="Delete Event"
                   >
                     🗑️ Delete
@@ -354,6 +364,22 @@ function Events() {
             </div>
           )}
         </div>
+      )}
+
+      {alert && (
+        <AlertBox
+          message={alert.message}
+          type={alert.type}
+          onClose={() => setAlert(null)}
+        />
+      )}
+
+      {confirmDelete && (
+        <ConfirmDialog
+          message="Are you sure you want to delete this event?"
+          onConfirm={confirmDeleteAction}
+          onCancel={() => setConfirmDelete(null)}
+        />
       )}
     </div>
   );

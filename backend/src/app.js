@@ -72,6 +72,25 @@ app.get('/api/db-test', async (req, res) => {
 // Webpushr test route
 app.get('/api/webpushr-test', async (req, res) => {
   const webpushrConfig = require('./config/webpushr');
+  
+  // First check if credentials are set
+  const credentialsCheck = {
+    hasRestApiKey: !!process.env.WEBPUSHR_REST_API_KEY && process.env.WEBPUSHR_REST_API_KEY !== '',
+    hasAuthToken: !!process.env.WEBPUSHR_AUTH_TOKEN && process.env.WEBPUSHR_AUTH_TOKEN !== '',
+    hasPublicKey: !!process.env.WEBPUSHR_PUBLIC_KEY && process.env.WEBPUSHR_PUBLIC_KEY !== '',
+    restApiKeyLength: process.env.WEBPUSHR_REST_API_KEY?.length || 0,
+    authTokenLength: process.env.WEBPUSHR_AUTH_TOKEN?.length || 0
+  };
+  
+  if (!credentialsCheck.hasRestApiKey || !credentialsCheck.hasAuthToken) {
+    return res.status(400).json({
+      success: false,
+      message: 'Webpushr credentials not configured',
+      credentials: credentialsCheck,
+      instructions: 'Set WEBPUSHR_REST_API_KEY and WEBPUSHR_AUTH_TOKEN in environment variables'
+    });
+  }
+  
   try {
     const payload = {
       title: 'Test from API',
@@ -85,11 +104,7 @@ app.get('/api/webpushr-test', async (req, res) => {
       success: true,
       message: 'Webpushr test successful',
       result: result,
-      credentials: {
-        hasRestApiKey: !!process.env.WEBPUSHR_REST_API_KEY,
-        hasAuthToken: !!process.env.WEBPUSHR_AUTH_TOKEN,
-        hasPublicKey: !!process.env.WEBPUSHR_PUBLIC_KEY
-      }
+      credentials: credentialsCheck
     });
   } catch (error) {
     res.status(500).json({

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { authAPI } from '../api/auth.api';
 import '../styles/universal.css';
 
 const formFieldStyle = {
@@ -22,19 +23,24 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      // Temporary check (replace with backend API later)
-      if (loginData.username === 'admin' && loginData.password === 'admin123') {
-        localStorage.setItem('userRole', 'admin');
-        localStorage.setItem('user', JSON.stringify({ username: loginData.username, role: 'admin' }));
+      // Call actual backend API
+      const response = await authAPI.login(loginData);
+      
+      if (response.success) {
+        // Store token and user info
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        localStorage.setItem('userRole', response.user.role);
         
+        console.log('✅ Login successful! Token:', response.token.substring(0, 20) + '...');
         alert('✅ Login successful!');
         navigate('/admin');
       } else {
-        alert('❌ Invalid Admin Credentials');
+        alert(`❌ Login failed: ${response.message}`);
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('❌ An error occurred. Please try again.');
+      alert(`❌ ${error.message || 'An error occurred. Please try again.'}`);
     } finally {
       setLoading(false);
     }

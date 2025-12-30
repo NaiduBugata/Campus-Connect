@@ -61,22 +61,27 @@ const createNotification = async (req, res) => {
     });
 
     // Send push notification to all subscribers
+    let pushStatus = { sent: false, error: null };
     try {
-      await pushService.sendToAll({
+      const pushResult = await pushService.sendToAll({
         title,
         message,
         url,
         notification_id
       });
+      pushStatus.sent = true;
+      pushStatus.result = pushResult;
     } catch (pushError) {
       console.error('Push notification error:', pushError);
-      // Continue even if push fails
+      pushStatus.error = pushError.message;
+      pushStatus.details = pushError.response?.data || pushError.toString();
     }
 
     res.status(201).json({
       success: true,
       message: 'Notification created successfully',
-      data: notification
+      data: notification,
+      pushStatus: pushStatus
     });
   } catch (error) {
     res.status(500).json({
