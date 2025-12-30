@@ -6,16 +6,37 @@ function SubscribeButton() {
   const [subscriberId, setSubscriberId] = useState(null);
 
   useEffect(() => {
-    // Check if already subscribed
-    checkSubscriptionStatus();
-    
-    // Auto-prompt for permission after 2 seconds if not subscribed
-    const timer = setTimeout(() => {
-      if (!subscribed && window.webpushr) {
-        console.log('🔔 Auto-prompting for notification permission...');
-        handleSubscribe();
+    // Wait for Webpushr to be fully ready
+    const initializeWebpushr = () => {
+      if (typeof window.webpushr === 'function') {
+        // Check if already subscribed
+        try {
+          window.webpushr('fetch_id', (sid) => {
+            if (sid) {
+              setSubscribed(true);
+              setSubscriberId(sid);
+              console.log('Already subscribed:', sid);
+            } else {
+              // Not subscribed, auto-prompt after delay
+              setTimeout(() => {
+                if (!subscribed) {
+                  console.log('🔔 Auto-prompting for notification permission...');
+                  handleSubscribe();
+                }
+              }, 3000); // Increased delay to ensure SDK is ready
+            }
+          });
+        } catch (error) {
+          console.error('Error checking subscription status:', error);
+        }
+      } else {
+        // Webpushr not ready yet, wait and retry
+        setTimeout(initializeWebpushr, 500);
       }
-    }, 2000);
+    };
+
+    // Start initialization after a short delay
+    const timer = setTimeout(initializeWebpushr, 1000);
     
     return () => clearTimeout(timer);
   }, []);
@@ -36,13 +57,31 @@ function SubscribeButton() {
     setLoading(true);
 
     try {
-      if (!window.webpushr) {
-        alert('❌ Webpushr not loaded. Please refresh the page.');
+      // Enhanced Webpushr readiness check
+      if (typeof window.webpushr !== 'function') {
+        console.error('❌ Webpushr SDK not loaded or not a function');
+        alert('❌ Notification service not loaded. Please refresh the page and try again.');
+        setLoading(false);
+        return;
+      }
+
+      // Double-check Webpushr is initialized
+      let isReady = false;
+      try {
+        window.webpushr('fetch_id', () => {
+          isReady = true;
+        });
+      } catch (e) {
+        console.error('Webpushr not ready:', e);
+        alert('⚠️ Notification service is still loading. Please wait a moment and try again.');
+        setLoading(false);
         return;
       }
 
       // Request permission and subscribe
       window.webpushr('subscribe', (result) => {
+        console.log('Webpushr subscribe result:', result);
+        
         if (result === 'subscribed') {
           // Get subscriber ID
           window.webpushr('fetch_id', (sid) => {
@@ -51,18 +90,34 @@ function SubscribeButton() {
               setSubscriberId(sid);
               console.log('✅ Subscribed successfully! ID:', sid);
               alert(`✅ Successfully subscribed to notifications!\n\nYou will now receive campus announcements.`);
+            } else {
+              console.error('❌ Subscribed but no SID received');
+              alert('⚠️ Subscription successful but could not retrieve subscriber ID. Please try refreshing the page.');
             }
+            setLoading(false);
           });
         } else if (result === 'denied') {
-          alert('❌ Notification permission denied. Please enable notifications in your browser settings.');
+          console.warn('⚠️ User denied notification permission');
+          alert('❌ Notification permission denied. Please enable notifications in your browser settings to receive campus updates.');
+          setLoading(false);
+        } else if (result === 'already-subscribed') {
+          console.log('ℹ️ Already subscribed');
+          window.webpushr('fetch_id', (sid) => {
+            if (sid) {
+              setSubscribed(true);
+              setSubscriberId(sid);
+            }
+            setLoading(false);
+          });
         } else {
-          console.log('Subscription result:', result);
+          console.error('Unexpected subscription result:', result);
+          alert(`⚠️ Subscription status: ${result}. Please check your browser settings.`);
+          setLoading(false);
         }
-        setLoading(false);
       });
     } catch (error) {
-      console.error('Subscription error:', error);
-      alert('❌ Failed to subscribe. Please try again.');
+      console.error('❌ Subscription error:', error);
+      alert(`❌ Failed to subscribe: ${error.message || 'Unknown error'}. Please check your internet connection and try again.`);
       setLoading(false);
     }
   };
