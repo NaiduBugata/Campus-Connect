@@ -17,14 +17,7 @@ class PushService {
         message: message,
         target_url: url,
         name: notification_id,
-        auto_hide: 0, // Don't auto-hide
-        send_at: 'now',
-        action_buttons: [
-          {
-            title: 'View Details',
-            url: url
-          }
-        ]
+        auto_hide: 0 // Don't auto-hide
       };
 
       // Send via Webpushr

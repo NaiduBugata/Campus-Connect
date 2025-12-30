@@ -75,8 +75,7 @@ app.get('/api/webpushr-test', async (req, res) => {
       message: 'Testing Webpushr configuration',
       target_url: process.env.FRONTEND_URL || 'https://frontend-inky-six-29.vercel.app',
       name: 'TEST_' + Date.now(),
-      auto_hide: 0,
-      send_at: 'now'
+      auto_hide: 0
     };
     const result = await webpushrConfig.sendNotification(payload);
     res.status(200).json({
