@@ -95,33 +95,34 @@ function AnnouncementList() {
         </div>
       ) : (
         <div className="announcements-grid">
-          {filteredAnnouncements.map(announcement => (
-          <div key={announcement.id} className={`announcement-card ${announcement.isNew ? 'new' : ''}`}>
-            {announcement.isNew && <span className="new-badge">NEW</span>}
-            <div className="announcement-header">
-              <div className="announcement-type">
-                <span className="type-emoji">{getTypeEmoji(announcement.type)}</span>
-                <span className={`type-label type-${announcement.type}`}>
-                  {announcement.type}
-                </span>
+          {filteredAnnouncements.length === 0 ? (
+            <div className="no-announcements">
+              <p>📤 No announcements match your filter</p>
+            </div>
+          ) : (
+            filteredAnnouncements.map(announcement => (
+              <div key={announcement.id} className={`announcement-card ${announcement.isNew ? 'new' : ''}`}>
+                {announcement.isNew && <span className="new-badge">NEW</span>}
+                <div className="announcement-header">
+                  <div className="announcement-type">
+                    <span className="type-emoji">{getTypeEmoji(announcement.type)}</span>
+                    <span className={`type-label type-${announcement.type}`}>
+                      {announcement.type}
+                    </span>
+                  </div>
+                  <span className={`priority-badge priority-${announcement.priority}`}>
+                    {announcement.priority}
+                  </span>
+                </div>
+                <h3>{announcement.title}</h3>
+                <p>{announcement.message}</p>
+                <div className="announcement-footer">
+                  <span className="date">📅 {announcement.date}</span>
+                  <span className="time">🕒 {announcement.time}</span>
+                </div>
               </div>
-              <span className={`priority-badge priority-${announcement.priority}`}>
-                {announcement.priority}
-              </span>
-            </div>
-            <h3>{announcement.title}</h3>
-            <p>{announcement.message}</p>
-            <div className="announcement-footer">
-              <span className="date">📅 {announcement.date}</span>
-              <span className="time">🕒 {announcement.time}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {filteredAnnouncements.length === 0 && (
-        <div className="no-announcements">
-          <p>📤 No announcements found</p>
+            ))
+          )}
         </div>
       )}
     </div>
