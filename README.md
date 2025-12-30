@@ -89,17 +89,17 @@ WEBPUSHR_REST_API_KEY=9a3985715a5e2089b2ab0a8c2e1fbef8
 #### 5. Deploy
 - Click **"Create Web Service"**
 - Wait for deployment (5-10 minutes)
-- Copy your backend URL: `https://campus-connect-backend.onrender.com`
+- Your backend URL: `https://campus-connect-ygl9.onrender.com`
 
 ### Frontend Deployment on Vercel
 
 #### 1. Update Frontend Environment Variable
 Go to [Vercel Dashboard](https://vercel.com/dashboard):
-1. Select **campus-connect-cyan-seven** project
+1. Select your frontend project
 2. **Settings** → **Environment Variables**
 3. Update or add:
    ```
-   VITE_API_URL=https://campus-connect-backend.onrender.com/api
+   VITE_API_URL=https://campus-connect-ygl9.onrender.com/api
    ```
 4. Select all environments (Production, Preview, Development)
 5. Click **Save**
@@ -113,14 +113,14 @@ Go to [Vercel Dashboard](https://vercel.com/dashboard):
 ### Verify Deployment
 
 #### Test Backend
-Visit: `https://campus-connect-backend.onrender.com/api/health`
+Visit: `https://campus-connect-ygl9.onrender.com/api/health`
 
 Expected response:
 ```json
 {
-  "status": "OK",
-  "version": "2.1.0-auth-fixed",
-  "service": "Campus Connect API"
+  "success": true,
+  "message": "Server is running",
+  "version": "2.1.0-auth-fixed"
 }
 ```
 
