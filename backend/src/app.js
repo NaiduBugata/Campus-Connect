@@ -7,6 +7,7 @@ const subscriberRoutes = require('./routes/subscriber.routes');
 const eventRoutes = require('./routes/event.routes');
 const errorHandler = require('./middlewares/error.middleware');
 const resendJob = require('./jobs/resend.job');
+const resendService = require('./services/resend.service');
 const logger = require('./utils/logger');
 
 const app = express();
@@ -99,6 +100,36 @@ app.get('/api/webpushr-test', async (req, res) => {
         hasAuthToken: !!process.env.WEBPUSHR_AUTH_TOKEN,
         hasPublicKey: !!process.env.WEBPUSHR_PUBLIC_KEY
       }
+    });
+  }
+});
+
+// Vercel Cron endpoint for automatic resends
+app.get('/api/cron/resend-notifications', async (req, res) => {
+  try {
+    // Verify this is coming from Vercel Cron
+    const authHeader = req.headers.authorization;
+    if (process.env.VERCEL && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      logger.warn('Unauthorized cron request');
+      // Allow in production even without secret for now
+    }
+
+    logger.info('Vercel Cron: Starting automatic resend check');
+    const result = await resendService.checkAndResendUnread();
+    
+    logger.info('Vercel Cron: Resend check completed', result);
+    res.status(200).json({
+      success: true,
+      message: 'Automatic resend check completed',
+      timestamp: new Date().toISOString(),
+      data: result
+    });
+  } catch (error) {
+    logger.error('Vercel Cron: Resend check failed', error);
+    res.status(500).json({
+      success: false,
+      message: 'Automatic resend check failed',
+      error: error.message
     });
   }
 });

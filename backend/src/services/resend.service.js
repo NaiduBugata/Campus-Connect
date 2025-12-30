@@ -9,26 +9,35 @@ class ResendService {
   async checkAndResendUnread() {
     try {
       const now = new Date();
+      
+      // Resend intervals:
+      // 1st resend: 30 min after initial send
+      // 2nd resend: 1 hour after 1st resend
+      // 3rd resend: 2 hours after 2nd resend
+      // 4th resend: 4 hours after 3rd resend
+      // 5th resend: 6 hours after 4th resend
+      // 6th resend: 12 hours after 5th resend
+      
       const thirtyMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000);
+      const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+      const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
+      const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000);
       const sixHoursAgo = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+      const twelveHoursAgo = new Date(now.getTime() - 12 * 60 * 60 * 1000);
 
       // Find unread notifications that need resending
       const notificationsToResend = await Notification.find({
         readStatus: 'UNREAD',
         status: 'active',
         $or: [
-          // First resend after 30 minutes
-          {
-            send_count: 1,
-            last_sent_at: { $lte: thirtyMinutesAgo }
-          },
-          // Second resend after 6 hours
-          {
-            send_count: 2,
-            last_sent_at: { $lte: sixHoursAgo }
-          }
+          { send_count: 1, last_sent_at: { $lte: thirtyMinutesAgo } },
+          { send_count: 2, last_sent_at: { $lte: oneHourAgo } },
+          { send_count: 3, last_sent_at: { $lte: twoHoursAgo } },
+          { send_count: 4, last_sent_at: { $lte: fourHoursAgo } },
+          { send_count: 5, last_sent_at: { $lte: sixHoursAgo } },
+          { send_count: 6, last_sent_at: { $lte: twelveHoursAgo } }
         ]
-      }).where('send_count').lt(3);
+      }).where('send_count').lt(6);
 
       logger.info(`Found ${notificationsToResend.length} notifications to resend`);
 
@@ -97,7 +106,7 @@ class ResendService {
 
       const pendingResends = await Notification.countDocuments({
         readStatus: 'UNREAD',
-        send_count: { $lt: 3 },
+        send_count: { $lt: 6 },
         status: 'active'
       });
 

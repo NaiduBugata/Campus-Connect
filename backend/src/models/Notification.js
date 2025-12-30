@@ -44,7 +44,7 @@ const notificationSchema = new mongoose.Schema({
   },
   max_resend_attempts: {
     type: Number,
-    default: 3
+    default: 6
   },
   status: {
     type: String,
