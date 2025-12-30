@@ -49,7 +49,9 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Server is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    version: '2.1.0-auth-fixed',
+    authMiddleware: 'enabled-all-routes'
   });
 });
 
