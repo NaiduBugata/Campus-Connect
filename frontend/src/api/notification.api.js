@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Prefer env, but fall back to production Render API if not set (helps misconfigured deployments)
+const API_URL = import.meta.env.VITE_API_URL || 'https://campus-connect-ygl9.onrender.com/api';
 
 export const getNotifications = async (params = {}) => {
   try {
