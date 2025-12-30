@@ -79,11 +79,45 @@ export const triggerResend = async (token) => {
   }
 };
 
+export const deleteNotification = async (id, token) => {
+  try {
+    const response = await fetch(`${API_URL}/notifications/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error deleting notification:', error);
+    throw error;
+  }
+};
+
+export const updateNotification = async (id, data, token) => {
+  try {
+    const response = await fetch(`${API_URL}/notifications/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating notification:', error);
+    throw error;
+  }
+};
+
 export const notificationAPI = {
   getAll: getNotifications,
   getById: getNotificationById,
   create: createNotification,
   markAsRead: markAsRead,
   getStats: getNotificationStats,
-  triggerResend: triggerResend
+  triggerResend: triggerResend,
+  delete: deleteNotification,
+  update: updateNotification
 };

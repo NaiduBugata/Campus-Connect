@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createNotification } from '../../api/notification.api';
 
 function CreateNotification() {
   const [formData, setFormData] = useState({
@@ -21,22 +22,34 @@ function CreateNotification() {
     setLoading(true);
 
     try {
-      // Simulate API call (replace with actual backend call)
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
       
-      console.log('Notification created:', formData);
-      alert('✅ Notification created successfully!');
+      if (!token) {
+        alert('❌ You must be logged in to create notifications');
+        return;
+      }
+
+      // Call actual API
+      const response = await createNotification(formData, token);
       
-      // Reset form
-      setFormData({
-        title: '',
-        message: '',
-        type: 'announcement',
-        priority: 'normal'
-      });
+      if (response.success) {
+        console.log('Notification created:', response.data);
+        alert(`✅ Notification created successfully!\n\nID: ${response.data.notification_id}\nPush sent: ${response.data.send_count > 0 ? 'Yes' : 'Pending'}`);
+        
+        // Reset form
+        setFormData({
+          title: '',
+          message: '',
+          type: 'announcement',
+          priority: 'normal'
+        });
+      } else {
+        alert(`❌ Failed to create notification: ${response.message}`);
+      }
     } catch (error) {
       console.error('Error creating notification:', error);
-      alert('❌ Failed to create notification');
+      alert('❌ Failed to create notification. Please try again.');
     } finally {
       setLoading(false);
     }
