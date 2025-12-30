@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Campus Connect - Announcements & Notifications</title>
 
-    <!-- start webpushr code -->
+    <!-- start webpushr tracking code -->
     <script>
       (function(w,d, s, id) {
         if(typeof(w.webpushr)!=='undefined') return;
@@ -21,26 +21,15 @@
         fjs.parentNode.appendChild(js);
       }(window, document, 'script', 'webpushr-jssdk'));
 
+      // Setup Webpushr with auto-prompt enabled
       webpushr('setup', {
         key: 'BPYbXahYivwtjJc8HGLaGRpjFcFXSQ-nuzORUSo_oA5mx2Dm-7zDLVJlbumRE4VCbuh6ABa_HRw-BzyWrxc3OsE',
         sw: '/webpushr-sw.js',
-        autoDismiss: 1
-        // Removed promptPermissionOnLoad - handled by SubscribeButton component
-      });
-      
-      // Log initialization
-      console.log('✅ Webpushr initialized - will auto-prompt for permission');
-      
-      // Check subscription status
-      webpushr('fetch_id', function(sid) {
-        if (sid) {
-          console.log('✅ Already subscribed! Subscriber ID:', sid);
-        } else {
-          console.log('⚠️ Not subscribed yet - waiting for user permission');
-        }
+        autoDismiss: 1,
+        promptPermissionOnLoad: true  // Webpushr will show its own subscription UI
       });
     </script>
-    <!-- end webpushr code -->
+    <!-- end webpushr tracking code -->
 
   </head>
   <body>

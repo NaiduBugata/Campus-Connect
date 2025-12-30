@@ -1,5 +1,4 @@
 import AnnouncementList from '../components/user/AnnouncementList';
-import SubscribeButton from '../components/user/SubscribeButton';
 import '../styles/studentDashboard.css';
 
 function StudentDashboard() {
@@ -8,7 +7,7 @@ function StudentDashboard() {
       <div className="dashboard-header">
         <h1>📚 Student Dashboard</h1>
         <p>Stay updated with the latest announcements and notifications</p>
-        <SubscribeButton />
+        <p className="webpushr-notice">🔔 Webpushr will prompt you to subscribe to notifications</p>
       </div>
       <AnnouncementList />
     </div>

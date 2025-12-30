@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AnnouncementList from '../components/user/AnnouncementList';
 import EventList from '../components/user/EventList';
-import SubscribeButton from '../components/user/SubscribeButton';
 import NotificationStatus from '../components/user/NotificationStatus';
 import '../styles/studentDashboard.css';
 
@@ -65,13 +64,10 @@ function StudentDashboard() {
         {/* Subscription Card */}
         <div className="subscription-card">
           <div className="subscription-info">
-            <h3>🔔 Notification Subscription</h3>
-            <p>Subscribe to receive important announcements and updates</p>
+            <h3>🔔 Push Notifications</h3>
+            <p>Webpushr will automatically prompt you to enable notifications on this page</p>
+            <p className="webpushr-info">✨ Look for the notification permission prompt from your browser</p>
           </div>
-          <SubscribeButton 
-            isSubscribed={isSubscribed} 
-            onSubscriptionChange={handleSubscriptionChange}
-          />
         </div>
 
         {/* Navigation Tabs */}
