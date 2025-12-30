@@ -5,54 +5,6 @@ function SubscribeButton() {
   const [loading, setLoading] = useState(false);
   const [subscriberId, setSubscriberId] = useState(null);
 
-  useEffect(() => {
-    // Wait for Webpushr to be fully ready
-    const initializeWebpushr = () => {
-      if (typeof window.webpushr === 'function') {
-        // Check if already subscribed
-        try {
-          window.webpushr('fetch_id', (sid) => {
-            if (sid) {
-              setSubscribed(true);
-              setSubscriberId(sid);
-              console.log('Already subscribed:', sid);
-            } else {
-              // Not subscribed, auto-prompt after delay
-              setTimeout(() => {
-                if (!subscribed) {
-                  console.log('🔔 Auto-prompting for notification permission...');
-                  handleSubscribe();
-                }
-              }, 3000); // Increased delay to ensure SDK is ready
-            }
-          });
-        } catch (error) {
-          console.error('Error checking subscription status:', error);
-        }
-      } else {
-        // Webpushr not ready yet, wait and retry
-        setTimeout(initializeWebpushr, 500);
-      }
-    };
-
-    // Start initialization after a short delay
-    const timer = setTimeout(initializeWebpushr, 1000);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
-  const checkSubscriptionStatus = () => {
-    if (window.webpushr) {
-      window.webpushr('fetch_id', (sid) => {
-        if (sid) {
-          setSubscribed(true);
-          setSubscriberId(sid);
-          console.log('Already subscribed:', sid);
-        }
-      });
-    }
-  };
-
   const handleSubscribe = async () => {
     setLoading(true);
 
@@ -61,19 +13,6 @@ function SubscribeButton() {
       if (typeof window.webpushr !== 'function') {
         console.error('❌ Webpushr SDK not loaded or not a function');
         alert('❌ Notification service not loaded. Please refresh the page and try again.');
-        setLoading(false);
-        return;
-      }
-
-      // Double-check Webpushr is initialized
-      let isReady = false;
-      try {
-        window.webpushr('fetch_id', () => {
-          isReady = true;
-        });
-      } catch (e) {
-        console.error('Webpushr not ready:', e);
-        alert('⚠️ Notification service is still loading. Please wait a moment and try again.');
         setLoading(false);
         return;
       }
@@ -117,10 +56,38 @@ function SubscribeButton() {
       });
     } catch (error) {
       console.error('❌ Subscription error:', error);
-      alert(`❌ Failed to subscribe: ${error.message || 'Unknown error'}. Please check your internet connection and try again.`);
+      alert(`❌ Failed to subscribe. Please try again.`);
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Wait for Webpushr to be fully ready
+    const initializeWebpushr = () => {
+      if (typeof window.webpushr === 'function') {
+        // Check if already subscribed
+        try {
+          window.webpushr('fetch_id', (sid) => {
+            if (sid) {
+              setSubscribed(true);
+              setSubscriberId(sid);
+              console.log('Already subscribed:', sid);
+            }
+          });
+        } catch (error) {
+          console.error('Error checking subscription status:', error);
+        }
+      } else {
+        // Webpushr not ready yet, wait and retry
+        setTimeout(initializeWebpushr, 500);
+      }
+    };
+
+    // Start initialization after a short delay
+    const timer = setTimeout(initializeWebpushr, 1000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="subscribe-section">
