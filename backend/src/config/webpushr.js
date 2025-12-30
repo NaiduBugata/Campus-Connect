@@ -9,9 +9,10 @@ class WebpushrConfig {
   }
 
   getHeaders() {
+    // Webpushr REST API expects these exact header names
     return {
-      'webpushrkey': this.restApiKey,
-      'webpushrauthtoken': this.authToken,
+      'webpushrKey': String(this.restApiKey).trim(),
+      'webpushrAuthToken': String(this.authToken).trim(),
       'Content-Type': 'application/json'
     };
   }
