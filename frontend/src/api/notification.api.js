@@ -122,3 +122,5 @@ export const notificationAPI = {
   delete: deleteNotification,
   update: updateNotification
 };
+
+export default notificationAPI;
