@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getNotificationStats } from '../../api/notification.api';
+import { getNotificationStats, triggerResend } from '../../api/notification.api';
 
 function DashboardOverview({ onNavigate }) {
   const [stats, setStats] = useState({
@@ -11,36 +11,72 @@ function DashboardOverview({ onNavigate }) {
     totalRead: 0
   });
   const [loading, setLoading] = useState(true);
+  const [resending, setResending] = useState(false);
+
+  const handleManualResend = async () => {
+    if (!confirm('Trigger manual resend check for all unread notifications?')) {
+      return;
+    }
+
+    try {
+      setResending(true);
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        alert('❌ Authentication required');
+        return;
+      }
+
+      const response = await triggerResend(token);
+      
+      if (response.success) {
+        alert(`✅ Resend check completed!\n\n` +
+              `Total checked: ${response.data.total_checked}\n` +
+              `Successfully resent: ${response.data.results.filter(r => r.success).length}\n` +
+              `Failed: ${response.data.results.filter(r => !r.success).length}`);
+        
+        // Refresh stats after resend
+        fetchStats();
+      } else {
+        alert(`❌ Failed to trigger resend: ${response.message}`);
+      }
+    } catch (error) {
+      console.error('Error triggering resend:', error);
+      alert('❌ Failed to trigger resend check');
+    } finally {
+      setResending(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      
+      if (token) {
+        const response = await getNotificationStats(token);
+        
+        if (response.success) {
+          // Map the actual API response structure
+          setStats({
+            totalNotifications: response.stats?.total || 0,
+            activeNotifications: response.stats?.active || 0,
+            inactiveNotifications: response.stats?.inactive || 0,
+            totalRead: response.stats?.read || 0,
+            totalUnread: response.stats?.unread || 0,
+            totalSubscribers: 0, // Will be updated when subscriber API is added
+            pendingResends: response.stats?.resend?.pendingResends || 0
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem('token');
-        
-        if (token) {
-          const response = await getNotificationStats(token);
-          
-          if (response.success) {
-            // Map the actual API response structure
-            setStats({
-              totalNotifications: response.stats?.total || 0,
-              activeNotifications: response.stats?.active || 0,
-              inactiveNotifications: response.stats?.inactive || 0,
-              totalRead: response.stats?.read || 0,
-              totalUnread: response.stats?.unread || 0,
-              totalSubscribers: 0, // Will be updated when subscriber API is added
-              pendingResends: response.stats?.resend?.pendingResends || 0
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchStats();
     
     // Refresh stats every 30 seconds
@@ -115,9 +151,19 @@ function DashboardOverview({ onNavigate }) {
             <span className="icon">➕</span>
             <span>Create Notification</span>
           </button>
+          <button 
+            className="action-btn" 
+            onClick={handleManualResend}
+            disabled={resending}
+            style={{ opacity: resending ? 0.6 : 1 }}
+          >
+            <span className="icon">🔄</span>
+            <span>{resending ? 'Resending...' : 'Trigger Resend Check'}</span>
+          </button>
           <button className="action-btn" onClick={() => alert('Analytics feature coming soon!')}>
             <span className="icon">📊</span>
             <span>View Analytics</span>
+          </button>
           </button>
           <button className="action-btn" onClick={() => alert('Subscriber management coming soon!')}>
             <span className="icon">👥</span>

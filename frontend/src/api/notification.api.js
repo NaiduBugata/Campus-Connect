@@ -69,7 +69,8 @@ export const triggerResend = async (token) => {
     const response = await fetch(`${API_URL}/notifications/resend-check`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
     });
     return await response.json();
