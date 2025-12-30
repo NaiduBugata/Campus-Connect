@@ -8,6 +8,16 @@ function SubscribeButton() {
   useEffect(() => {
     // Check if already subscribed
     checkSubscriptionStatus();
+    
+    // Auto-prompt for permission after 2 seconds if not subscribed
+    const timer = setTimeout(() => {
+      if (!subscribed && window.webpushr) {
+        console.log('🔔 Auto-prompting for notification permission...');
+        handleSubscribe();
+      }
+    }, 2000);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const checkSubscriptionStatus = () => {

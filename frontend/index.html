@@ -24,11 +24,21 @@
       webpushr('setup', {
         key: 'BPYbXahYivwtjJc8HGLaGRpjFcFXSQ-nuzORUSo_oA5mx2Dm-7zDLVJlbumRE4VCbuh6ABa_HRw-BzyWrxc3OsE',
         sw: '/webpushr-sw.js',
-        autoDismiss: 1
+        autoDismiss: 1,
+        promptPermissionOnLoad: true // Auto prompt for permission
       });
       
       // Log initialization
-      console.log('Webpushr initialized with key');
+      console.log('✅ Webpushr initialized - will auto-prompt for permission');
+      
+      // Check subscription status
+      webpushr('fetch_id', function(sid) {
+        if (sid) {
+          console.log('✅ Already subscribed! Subscriber ID:', sid);
+        } else {
+          console.log('⚠️ Not subscribed yet - waiting for user permission');
+        }
+      });
     </script>
     <!-- end webpushr code -->
 

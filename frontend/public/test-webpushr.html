@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webpushr Test - Campus Connect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #007bff;
+        }
+        .success { border-left-color: #28a745; }
+        .error { border-left-color: #dc3545; }
+        .log {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log div { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Webpushr Integration Test</h1>
+        <p>This page tests if Webpushr is working correctly.</p>
+        
+        <div id="status" class="status">
+            <strong>Status:</strong> <span id="statusText">Initializing...</span>
+        </div>
+        
+        <div>
+            <button id="subscribeBtn" onclick="testSubscribe()">Request Permission & Subscribe</button>
+            <button id="checkBtn" onclick="checkStatus()">Check Subscription Status</button>
+            <button onclick="testNotification()">Send Test Notification</button>
+        </div>
+        
+        <div class="log" id="log">
+            <div>📋 Console Log:</div>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 5px;">
+            <strong>⚠️ Important:</strong>
+            <ul>
+                <li>Make sure you're on HTTPS or localhost</li>
+                <li>Notifications must be allowed in browser settings</li>
+                <li>Service worker must be registered successfully</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Webpushr SDK -->
+    <script>
+        (function(w,d, s, id) {
+            if(typeof(w.webpushr)!=='undefined') return;
+            w.webpushr = w.webpushr || function(){
+                (w.webpushr.q = w.webpushr.q || []).push(arguments);
+            };
+            var js, fjs = d.getElementsByTagName(s)[0];
+            js = d.createElement(s);
+            js.id = id;
+            js.async = 1;
+            js.src = "https://cdn.webpushr.com/app.min.js";
+            fjs.parentNode.appendChild(js);
+        }(window, document, 'script', 'webpushr-jssdk'));
+
+        // Initialize Webpushr
+        webpushr('setup', {
+            key: 'BPYbXahYivwtjJc8HGLaGRpjFcFXSQ-nuzORUSo_oA5mx2Dm-7zDLVJlbumRE4VCbuh6ABa_HRw-BzyWrxc3OsE',
+            sw: '/webpushr-sw.js'
+        });
+
+        function log(message, isError = false) {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.style.color = isError ? '#f00' : '#0f0';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function updateStatus(text, isSuccess = true) {
+            const statusDiv = document.getElementById('status');
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = text;
+            statusDiv.className = 'status ' + (isSuccess ? 'success' : 'error');
+        }
+
+        // Check if Webpushr is loaded
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (window.webpushr) {
+                    log('✅ Webpushr SDK loaded successfully');
+                    checkStatus();
+                } else {
+                    log('❌ Webpushr SDK failed to load', true);
+                    updateStatus('Webpushr SDK not loaded', false);
+                }
+            }, 1000);
+        });
+
+        function testSubscribe() {
+            log('🔔 Requesting notification permission...');
+            
+            if (!window.webpushr) {
+                log('❌ Webpushr not loaded!', true);
+                updateStatus('Webpushr SDK not available', false);
+                return;
+            }
+
+            webpushr('subscribe', function(result) {
+                log(`📢 Subscribe result: ${result}`);
+                
+                if (result === 'subscribed') {
+                    webpushr('fetch_id', function(sid) {
+                        if (sid) {
+                            log(`✅ Subscribed! Subscriber ID: ${sid}`);
+                            updateStatus(`Subscribed! ID: ${sid.substring(0, 20)}...`, true);
+                        }
+                    });
+                } else if (result === 'denied') {
+                    log('❌ Permission denied by user', true);
+                    updateStatus('Permission denied - Enable in browser settings', false);
+                } else if (result === 'default') {
+                    log('⚠️ User dismissed the permission dialog');
+                    updateStatus('Permission not granted', false);
+                } else {
+                    log(`⚠️ Unknown result: ${result}`);
+                    updateStatus(`Status: ${result}`, false);
+                }
+            });
+        }
+
+        function checkStatus() {
+            log('🔍 Checking subscription status...');
+            
+            if (!window.webpushr) {
+                log('❌ Webpushr not loaded!', true);
+                return;
+            }
+
+            webpushr('fetch_id', function(sid) {
+                if (sid) {
+                    log(`✅ Already subscribed! ID: ${sid}`);
+                    updateStatus(`Subscribed! ID: ${sid.substring(0, 30)}...`, true);
+                    document.getElementById('subscribeBtn').disabled = true;
+                    document.getElementById('subscribeBtn').textContent = '✅ Already Subscribed';
+                } else {
+                    log('⚠️ Not subscribed yet');
+                    updateStatus('Not subscribed - Click button to subscribe', false);
+                    document.getElementById('subscribeBtn').disabled = false;
+                }
+            });
+
+            // Check notification permission
+            if ('Notification' in window) {
+                log(`📋 Notification permission: ${Notification.permission}`);
+            }
+        }
+
+        function testNotification() {
+            log('📤 Testing notification...');
+            
+            if (!window.webpushr) {
+                log('❌ Webpushr not loaded!', true);
+                return;
+            }
+
+            webpushr('fetch_id', function(sid) {
+                if (!sid) {
+                    log('❌ Not subscribed! Subscribe first.', true);
+                    alert('Please subscribe first before testing notifications');
+                    return;
+                }
+                
+                log('✅ You are subscribed. Check your backend to send a test notification.');
+                alert('Use the admin dashboard to send a test notification!\n\nBackend: https://backend-pearl-pi-79.vercel.app\nAdmin: admin / admin123');
+            });
+        }
+    </script>
+</body>
+</html>
