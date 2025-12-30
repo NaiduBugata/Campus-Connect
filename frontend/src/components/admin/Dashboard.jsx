@@ -64,7 +64,8 @@ function DashboardOverview({ onNavigate }) {
             inactiveNotifications: response.stats?.inactive || 0,
             totalRead: response.stats?.read || 0,
             totalUnread: response.stats?.unread || 0,
-            totalSubscribers: 0, // Will be updated when subscriber API is added
+            totalSubscribers: response.stats?.subscribers?.total || 0,
+            activeSubscribers: response.stats?.subscribers?.active || 0,
             pendingResends: response.stats?.resend?.pendingResends || 0
           });
         }

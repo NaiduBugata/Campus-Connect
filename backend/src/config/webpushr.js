@@ -61,6 +61,23 @@ class WebpushrConfig {
     }
   }
 
+  async getSubscriberCount() {
+    try {
+      const response = await axios.get(
+        `${this.apiEndpoint}/fetch`,
+        { headers: this.getHeaders() }
+      );
+      // Webpushr returns total_subscribers count
+      return {
+        total: response.data?.total_subscribers || 0,
+        active: response.data?.active_subscribers || 0
+      };
+    } catch (error) {
+      console.error('Webpushr API Error:', error.response?.data || error.message);
+      return { total: 0, active: 0 };
+    }
+  }
+
   async getNotificationStatus(notificationId) {
     try {
       const response = await axios.get(

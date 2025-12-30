@@ -213,6 +213,15 @@ const getNotificationStats = async (req, res) => {
     // Get resend stats
     const resendStats = await resendService.getResendStats();
 
+    // Get subscriber count from Webpushr
+    const webpushrConfig = require('../config/webpushr');
+    let subscriberCount = { total: 0, active: 0 };
+    try {
+      subscriberCount = await webpushrConfig.getSubscriberCount();
+    } catch (error) {
+      console.error('Failed to fetch subscriber count:', error);
+    }
+
     res.status(200).json({
       success: true,
       stats: {
@@ -221,6 +230,7 @@ const getNotificationStats = async (req, res) => {
         inactive,
         read,
         unread,
+        subscribers: subscriberCount,
         resend: resendStats
       }
     });

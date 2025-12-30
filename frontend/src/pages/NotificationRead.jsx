@@ -33,9 +33,17 @@ function NotificationRead() {
       if (response.success) {
         setNotification(response.data);
         
-        // Mark as read
+        // Mark as read using notification_id (not MongoDB _id)
+        // This will stop further resends
         if (response.data.readStatus === 'UNREAD') {
-          await markAsRead(id);
+          try {
+            await markAsRead(response.data.notification_id);
+            console.log('✅ Notification marked as read - resends stopped');
+            // Update local state
+            setNotification(prev => ({ ...prev, readStatus: 'READ' }));
+          } catch (error) {
+            console.error('Failed to mark as read:', error);
+          }
         }
       } else {
         setError(response.message || 'Notification not found');
