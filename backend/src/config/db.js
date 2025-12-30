@@ -11,9 +11,15 @@ const connectDB = async () => {
   }
 
   try {
+    console.log('🔄 Connecting to MongoDB...');
+    console.log('MongoDB URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
+    
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 30000,
-      socketTimeoutMS: 45000,
+      serverSelectionTimeoutMS: 60000, // Increased to 60s for cold starts
+      socketTimeoutMS: 60000,
+      connectTimeoutMS: 60000,
+      maxPoolSize: 1, // Limit pool size for serverless
+      minPoolSize: 0,
     });
 
     cachedConnection = conn;
@@ -21,6 +27,7 @@ const connectDB = async () => {
     return conn;
   } catch (error) {
     console.error(`❌ MongoDB Error: ${error.message}`);
+    console.error('Full error:', error);
     throw error;
   }
 };
