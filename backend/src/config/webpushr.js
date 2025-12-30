@@ -63,18 +63,32 @@ class WebpushrConfig {
 
   async getSubscriberCount() {
     try {
+      // Note: Webpushr API doesn't provide a direct subscriber count endpoint
+      // in the free tier. This would need to be tracked separately or
+      // accessed via Webpushr dashboard
+      
+      // Try to get campaign stats which might include subscriber info
       const response = await axios.get(
-        `${this.apiEndpoint}/fetch`,
-        { headers: this.getHeaders() }
+        `${this.apiEndpoint}/campaign/list`,
+        { 
+          headers: this.getHeaders(),
+          params: { limit: 1 }
+        }
       );
-      // Webpushr returns total_subscribers count
+      
+      // For now, return 0 - admins can see count in Webpushr dashboard
       return {
-        total: response.data?.total_subscribers || 0,
-        active: response.data?.active_subscribers || 0
+        total: 0,
+        active: 0,
+        note: 'Check Webpushr dashboard for subscriber count'
       };
     } catch (error) {
-      console.error('Webpushr API Error:', error.response?.data || error.message);
-      return { total: 0, active: 0 };
+      console.error('Webpushr subscriber count unavailable:', error.message);
+      return { 
+        total: 0, 
+        active: 0,
+        note: 'Check Webpushr dashboard at https://app.webpushr.com'
+      };
     }
   }
 
