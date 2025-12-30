@@ -38,3 +38,14 @@ coverage/
 
 # Misc
 .cache/
+
+# Deployment (use render.yaml for Render)
+.vercel/
+.vercelignore
+vercel.json
+deploy.bat
+DEPLOYMENT.md
+DEPLOY_NOW.md
+DEPLOYMENT_SUCCESS.md
+QUICK_FIX.md
+VERCEL_SETUP_GUIDE.md

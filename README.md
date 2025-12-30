@@ -1,66 +1,198 @@
 # 🎓 Campus Connect - Push Notification System
 
-A complete web-based announcement system with real-time push notifications, read/unread tracking, and automatic resend functionality.
+A complete web-based campus announcement and event management system with real-time push notifications, read/unread tracking, and automatic resend functionality.
+
+---
 
 ## ✨ Features
 
 - ✅ **Real-time Push Notifications** via Webpushr
 - ✅ **Admin Dashboard** with secure JWT authentication
-- ✅ **Read/Unread Tracking** for all notifications
-- ✅ **Auto-Resend** unread notifications (max 3 attempts)
 - ✅ **Event Management** for campus activities
+- ✅ **Read/Unread Tracking** for all notifications
+- ✅ **Auto-Resend** unread notifications (max 6 attempts)
 - ✅ **Subscriber Management** with device tracking
-- ✅ **Public Access** - no login required for viewing
+- ✅ **Public Student Dashboard** - no login required
 - ✅ **Comprehensive Analytics** and statistics
+- ✅ **Custom Alert Components** - Beautiful UI with animations
+- ✅ **Event Filtering** - Upcoming/Completed/All
 
-## 🚀 Quick Start
+---
+
+## 🏗️ Tech Stack
+
+### Backend
+- **Node.js** + Express 5.2.1
+- **MongoDB** (Mongoose 9.0.2) - Atlas cloud database
+- **JWT Authentication** - 7-day token expiry
+- **Webpushr API** - Push notification delivery
+- **node-cron** - Scheduled notification resends
+
+### Frontend
+- **React** 19.2.0
+- **React Router DOM** 7.11.0
+- **Vite** 7.2.4 - Lightning-fast build tool
+- **Webpushr SDK** - Push notification subscription
+
+### Deployment
+- **Backend:** Render.com (Free tier)
+- **Frontend:** Vercel (Free tier)
+- **Database:** MongoDB Atlas (Free tier)
+
+---
+
+## 🚀 Deployment Guide
+
+### Backend Deployment on Render
+
+#### 1. Prepare Your Repository
+Ensure your code is pushed to GitHub:
+```bash
+git add .
+git commit -m "Ready for deployment"
+git push origin main
+```
+
+#### 2. Create Render Account
+- Go to [Render.com](https://render.com)
+- Sign up with GitHub account
+
+#### 3. Deploy Backend
+1. Click **"New +"** → **"Web Service"**
+2. Connect your GitHub repository
+3. Configure:
+   - **Name:** `campus-connect-backend`
+   - **Region:** Oregon (or nearest)
+   - **Branch:** `main`
+   - **Root Directory:** `backend`
+   - **Runtime:** Node
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+   - **Plan:** Free
+
+#### 4. Set Environment Variables
+In Render dashboard, add these environment variables:
+
+```plaintext
+NODE_ENV=production
+PORT=5000
+MONGODB_URI=mongodb+srv://campusadmin:campusadmin@cluster0.tbwgttz.mongodb.net/campusdb?retryWrites=true&w=majority
+JWT_SECRET=3d7a9039b7365478197b0f0d97f4d0de349f5996d1afdb6bc63de07649fa738b
+JWT_EXPIRE=7d
+FRONTEND_URL=https://campus-connect-cyan-seven.vercel.app
+CLIENT_URL=https://campus-connect-cyan-seven.vercel.app
+WEBPUSHR_PUBLIC_KEY=BPYbXahYivwtjJc8HGLaGRpjFcFXSQ-nuzORUSo_oA5mx2Dm-7zDLVJlbumRE4VCbuh6ABa_HRw-BzyWrxc3OsE
+WEBPUSHR_AUTH_TOKEN=117317
+WEBPUSHR_REST_API_KEY=9a3985715a5e2089b2ab0a8c2e1fbef8
+```
+
+#### 5. Deploy
+- Click **"Create Web Service"**
+- Wait for deployment (5-10 minutes)
+- Copy your backend URL: `https://campus-connect-backend.onrender.com`
+
+### Frontend Deployment on Vercel
+
+#### 1. Update Frontend Environment Variable
+Go to [Vercel Dashboard](https://vercel.com/dashboard):
+1. Select **campus-connect-cyan-seven** project
+2. **Settings** → **Environment Variables**
+3. Update or add:
+   ```
+   VITE_API_URL=https://campus-connect-backend.onrender.com/api
+   ```
+4. Select all environments (Production, Preview, Development)
+5. Click **Save**
+
+#### 2. Redeploy Frontend
+1. Go to **Deployments** tab
+2. Click **...** on latest deployment
+3. Click **Redeploy**
+4. Wait for completion (~2 minutes)
+
+### Verify Deployment
+
+#### Test Backend
+Visit: `https://campus-connect-backend.onrender.com/api/health`
+
+Expected response:
+```json
+{
+  "status": "OK",
+  "version": "2.1.0-auth-fixed",
+  "service": "Campus Connect API"
+}
+```
+
+#### Test Frontend
+1. Visit: `https://campus-connect-cyan-seven.vercel.app`
+2. Go to Student Dashboard
+3. Click "Subscribe to Notifications"
+4. Should see: ✅ "Successfully subscribed!"
+
+---
+
+## 💻 Local Development
 
 ### Prerequisites
-- Node.js (v18+)
-- MongoDB (running)
-- Webpushr account (free at https://webpushr.com)
+- Node.js 18+ 
+- Git
+- MongoDB Atlas account (or local MongoDB)
 
 ### Installation
 
-1. **Extract the project** (already done ✅)
-
-2. **Configure Webpushr**
-   - Sign up at https://webpushr.com
-   - Create a website
-   - Get your PUBLIC_KEY and AUTH_TOKEN
-   - Update in `.env` files (both backend and frontend)
-
-3. **Start MongoDB**
+1. **Clone the repository**
    ```bash
-   net start MongoDB
+   git clone https://github.com/NaiduBugata/Campus-Connect.git
+   cd Campus-Connect
    ```
 
-4. **Run the application**
-   
-   **Option 1: Double-click START.bat** (Windows)
-   - Easiest method!
-   - Opens both servers and browser automatically
-
-   **Option 2: PowerShell Script**
-   ```powershell
-   .\START.ps1
-   ```
-
-   **Option 3: Manual Start**
+2. **Setup Backend**
    ```bash
-   # Terminal 1 - Backend
    cd backend
-   npm start
+   npm install
+   ```
 
-   # Terminal 2 - Frontend  
+   Create `.env` file:
+   ```plaintext
+   PORT=5000
+   NODE_ENV=development
+   MONGODB_URI=mongodb+srv://campusadmin:campusadmin@cluster0.tbwgttz.mongodb.net/campusdb?retryWrites=true&w=majority
+   JWT_SECRET=3d7a9039b7365478197b0f0d97f4d0de349f5996d1afdb6bc63de07649fa738b
+   JWT_EXPIRE=7d
+   FRONTEND_URL=http://localhost:5173
+   CLIENT_URL=http://localhost:5173
+   WEBPUSHR_PUBLIC_KEY=BPYbXahYivwtjJc8HGLaGRpjFcFXSQ-nuzORUSo_oA5mx2Dm-7zDLVJlbumRE4VCbuh6ABa_HRw-BzyWrxc3OsE
+   WEBPUSHR_AUTH_TOKEN=117317
+   WEBPUSHR_REST_API_KEY=9a3985715a5e2089b2ab0a8c2e1fbef8
+   ```
+
+   Start backend:
+   ```bash
+   npm start
+   ```
+
+3. **Setup Frontend**
+   ```bash
    cd frontend
+   npm install
+   ```
+
+   Create `.env` file:
+   ```plaintext
+   VITE_API_URL=http://localhost:5000/api
+   VITE_WEBPUSHR_PUBLIC_KEY=BPYbXahYivwtjJc8HGLaGRpjFcFXSQ-nuzORUSo_oA5mx2Dm-7zDLVJlbumRE4VCbuh6ABa_HRw-BzyWrxc3OsE
+   ```
+
+   Start frontend:
+   ```bash
    npm run dev
    ```
 
-5. **Access the application**
+4. **Access Application**
    - Frontend: http://localhost:5173
-   - Backend API: http://localhost:5000
-   - Admin Panel: http://localhost:5173/admin/login
+   - Backend: http://localhost:5000
+   - Admin Login: http://localhost:5173/admin/login
 
 ### Default Admin Credentials
 ```
@@ -68,205 +200,259 @@ Username: admin
 Password: admin123
 ```
 
-## 📱 Usage
+---
 
-### As a User:
-1. Open http://localhost:5173
-2. Click "Allow Notifications" when prompted
-3. Subscribe to receive push notifications
-4. View announcements and events
-5. Click notifications to mark as read
+## 📱 Usage Guide
 
-### As an Admin:
-1. Login at http://localhost:5173/admin/login
-2. Create notifications from dashboard
-3. Notifications are instantly sent via Webpushr
-4. View delivery statistics
-5. Monitor read/unread status
-6. Manually trigger resend if needed
+### Student Dashboard
+1. Visit the homepage
+2. Allow notification permission when prompted
+3. View all announcements and events
+4. Filter events by status (Upcoming/Completed/All)
+5. Receive push notifications for new announcements/events
+
+### Admin Dashboard
+1. Login at `/admin/login`
+2. **Create Notifications:**
+   - Fill in title and message
+   - Select category (Academic/Event/Technical/General)
+   - Notifications are instantly sent to all subscribers
+3. **Manage Events:**
+   - Create events with date, time, location
+   - Events automatically trigger notifications
+   - View all events in one place
+4. **View Analytics:**
+   - Total notifications sent
+   - Read/Unread statistics
+   - Active/Inactive status
+   - Resend attempt tracking
+
+---
 
 ## 🔄 Auto-Resend Feature
 
-The system automatically resends unread notifications:
-- **1st Resend**: 30 minutes after initial send
-- **2nd Resend**: 6 hours after 1st resend
-- **Max Attempts**: 3 total sends
-- **Stops When**: User clicks notification (marks as READ)
+Unread notifications are automatically resent:
+- **Schedule:** Every 15 minutes
+- **Max Attempts:** 6 total sends
+- **Intervals:**
+  - 1st resend: 30 minutes after initial
+  - 2nd resend: 6 hours after 1st
+  - Subsequent: 24 hours apart
+- **Stops When:** User clicks notification (marks as READ)
 
-Resend job runs automatically every 15 minutes.
+---
 
-## 📊 API Endpoints
-
-### Authentication
-- `POST /api/auth/create-admin` - Create admin account
-- `POST /api/auth/login` - Admin login
-
-### Notifications
-- `GET /api/notifications` - Get all notifications
-- `GET /api/notifications/by-id/:id` - Get single notification
-- `POST /api/notifications` - Create notification (Admin)
-- `PUT /api/notifications/:id/read` - Mark as read
-- `GET /api/notifications/stats` - Get statistics (Admin)
-- `POST /api/notifications/resend-check` - Manual resend trigger (Admin)
-
-### Subscribers
-- `POST /api/subscribers` - Subscribe with Webpushr ID
-- `GET /api/subscribers` - Get all subscribers (Admin)
-- `DELETE /api/subscribers/:id` - Unsubscribe
-
-### Events
-- `GET /api/events` - Get all events
-- `POST /api/events` - Create event (Admin)
-
-## 🛠️ Technology Stack
-
-### Backend
-- Node.js + Express
-- MongoDB + Mongoose
-- JWT Authentication
-- Webpushr API
-- node-cron for scheduling
-
-### Frontend
-- React + Vite
-- React Router
-- Webpushr SDK
-- Context API for state management
-
-## 📁 Project Structure
+## 🏗️ Project Structure
 
 ```
 Campus-Connect/
 ├── backend/
 │   ├── src/
-│   │   ├── config/         # Database, JWT, Webpushr
-│   │   ├── controllers/    # Route handlers
-│   │   ├── models/         # MongoDB schemas
-│   │   ├── routes/         # API routes
-│   │   ├── services/       # Push & Resend logic
-│   │   ├── jobs/           # Cron scheduler
-│   │   ├── middlewares/    # Auth & error handling
-│   │   └── utils/          # Logger
-│   ├── .env               # Environment variables
+│   │   ├── config/          # Database, JWT, Webpushr config
+│   │   ├── controllers/     # Request handlers
+│   │   ├── jobs/            # Cron jobs (auto-resend)
+│   │   ├── middlewares/     # Auth, error handling
+│   │   ├── models/          # MongoDB schemas
+│   │   ├── routes/          # API routes
+│   │   ├── scripts/         # Utility scripts
+│   │   ├── services/        # Push notification services
+│   │   ├── utils/           # Logger, helpers
+│   │   ├── app.js           # Express app setup
+│   │   └── server.js        # Entry point
+│   ├── .env                 # Environment variables
 │   └── package.json
 │
 ├── frontend/
+│   ├── public/
+│   │   └── webpushr-sw.js   # Service worker
 │   ├── src/
-│   │   ├── api/           # API calls
-│   │   ├── components/    # React components
-│   │   ├── context/       # State management
-│   │   ├── pages/         # Page components
-│   │   ├── services/      # Webpushr service
-│   │   └── utils/         # Helpers
-│   ├── .env              # Environment variables
-│   └── package.json
+│   │   ├── api/             # API integration
+│   │   ├── components/      # React components
+│   │   │   ├── admin/       # Admin components
+│   │   │   ├── common/      # Shared components
+│   │   │   └── user/        # Student components
+│   │   ├── context/         # React context
+│   │   ├── pages/           # Page components
+│   │   ├── services/        # Webpushr integration
+│   │   ├── styles/          # CSS files
+│   │   ├── utils/           # Helpers, constants
+│   │   ├── App.jsx          # Main app component
+│   │   ├── main.jsx         # Entry point
+│   │   └── routes.jsx       # Route definitions
+│   ├── .env                 # Environment variables
+│   ├── index.html           # HTML template
+│   ├── package.json
+│   └── vite.config.js       # Vite config
 │
-├── START.bat             # Quick start (Windows)
-├── START.ps1             # Quick start (PowerShell)
-├── SETUP_GUIDE.md        # Detailed setup instructions
-├── TESTING_GUIDE.md      # Testing procedures
-└── README.md             # This file
+└── README.md                # This file
 ```
 
-## 🔧 Configuration
+---
 
-### Backend (.env)
-```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/campus-connect
-JWT_SECRET=your-secret-key
-FRONTEND_URL=http://localhost:5173
-WEBPUSHR_PUBLIC_KEY=your-public-key
-WEBPUSHR_AUTH_TOKEN=your-auth-token
+## 📊 API Documentation
+
+### Public Endpoints (No Auth Required)
+
+#### GET /api/health
+Health check endpoint
+```bash
+curl https://campus-connect-backend.onrender.com/api/health
 ```
 
-### Frontend (.env)
-```env
-VITE_API_URL=http://localhost:5000/api
-VITE_WEBPUSHR_PUBLIC_KEY=your-public-key
+#### GET /api/notifications
+Get all notifications
+```bash
+curl https://campus-connect-backend.onrender.com/api/notifications
 ```
+
+#### GET /api/notifications/by-id/:id
+Get notification by ID
+```bash
+curl https://campus-connect-backend.onrender.com/api/notifications/by-id/N1767084587908669
+```
+
+#### PUT /api/notifications/:id/read
+Mark notification as read
+```bash
+curl -X PUT https://campus-connect-backend.onrender.com/api/notifications/NOTIFICATION_ID/read
+```
+
+#### GET /api/events
+Get all events
+```bash
+curl https://campus-connect-backend.onrender.com/api/events
+```
+
+### Protected Endpoints (JWT Required)
+
+#### POST /api/auth/login
+Admin login
+```bash
+curl -X POST https://campus-connect-backend.onrender.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}'
+```
+
+#### POST /api/notifications
+Create notification
+```bash
+curl -X POST https://campus-connect-backend.onrender.com/api/notifications \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Test","message":"Test message","category":"general"}'
+```
+
+#### POST /api/events
+Create event
+```bash
+curl -X POST https://campus-connect-backend.onrender.com/api/events \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Event","description":"Description","date":"2025-12-31","time":"18:00","location":"Campus","category":"seminar"}'
+```
+
+---
 
 ## 🧪 Testing
 
-See [TESTING_GUIDE.md](TESTING_GUIDE.md) for detailed testing procedures.
+Comprehensive test report available at [TEST_REPORT.md](TEST_REPORT.md)
 
-Quick test:
+### Manual API Testing
+
+**Backend Tests:**
 ```bash
-# Test backend health
+# Health check
 curl http://localhost:5000/api/health
 
-# Test login
+# Get notifications
+curl http://localhost:5000/api/notifications
+
+# Login
 curl -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin123"}'
 ```
 
-## 📈 Features Coverage
+---
 
-| Feature | Status |
-|---------|--------|
-| Admin Login | ✅ Complete |
-| Push Notifications | ✅ Complete |
-| Read/Unread Tracking | ✅ Complete |
-| Auto-Resend | ✅ Complete |
-| Webpushr Integration | ✅ Complete |
-| MongoDB Integration | ✅ Complete |
-| Event Management | ✅ Complete |
-| Subscriber Tracking | ✅ Complete |
-| Analytics Dashboard | ✅ Complete |
-| Public Access | ✅ Complete |
+## 🔧 Configuration
 
-## 🐛 Troubleshooting
+### Webpushr Setup
+1. Sign up at [Webpushr](https://app.webpushr.com)
+2. Create a website
+3. Get credentials:
+   - **Public Key** (VAPID)
+   - **Auth Token**
+   - **REST API Key**
+4. Update in `.env` files
 
-### MongoDB Connection Error
-```bash
-net start MongoDB
-```
-
-### Port Already in Use
-```bash
-# Kill process on port 5000
-npx kill-port 5000
-
-# Kill process on port 5173
-npx kill-port 5173
-```
-
-### Webpushr Not Working
-- Verify PUBLIC_KEY and AUTH_TOKEN in .env
-- Check browser console for errors
-- Ensure notifications are allowed in browser
-
-## 📝 Notes
-
-- Default admin credentials are **admin/admin123** - change in production!
-- Webpushr free tier supports up to 10,000 subscribers
-- MongoDB must be running before starting the backend
-- Service worker requires HTTPS in production (localhost works for development)
-
-## 🎯 Current Status
-
-**✅ ALL FEATURES FULLY IMPLEMENTED AND WORKING**
-
-Both servers are currently running:
-- Backend: http://localhost:5000 ✅
-- Frontend: http://localhost:5173 ✅
-- MongoDB: Connected ✅
-- Resend Job: Active ✅
-
-## 📞 Support
-
-For issues or questions:
-1. Check the logs in terminal windows
-2. Review [TESTING_GUIDE.md](TESTING_GUIDE.md)
-3. Verify .env configuration
-4. Check MongoDB is running
-
-## 🎉 Enjoy!
-
-Your Campus Connect platform is fully functional and ready to use!
+### MongoDB Atlas Setup
+1. Create cluster at [MongoDB Atlas](https://cloud.mongodb.com)
+2. Create database user
+3. Whitelist IP: `0.0.0.0/0` (allow from anywhere)
+4. Get connection string
+5. Update `MONGODB_URI` in backend `.env`
 
 ---
 
-**Last Updated**: December 29, 2025  
-**Status**: Production Ready ✅
+## 🐛 Troubleshooting
+
+### Issue: Notifications not sending
+**Solution:** Check Webpushr credentials in backend `.env`
+
+### Issue: CORS errors
+**Solution:** Ensure `FRONTEND_URL` in backend matches your actual frontend URL
+
+### Issue: Database connection failed
+**Solution:** Verify MongoDB Atlas IP whitelist and connection string
+
+### Issue: Render deployment fails
+**Solution:** 
+- Check build logs in Render dashboard
+- Verify all environment variables are set
+- Ensure `package.json` has correct start script
+
+### Issue: Frontend can't connect to backend
+**Solution:** Update `VITE_API_URL` in Vercel environment variables
+
+---
+
+## 📝 License
+
+This project is open source and available for educational purposes.
+
+---
+
+## 👥 Contributors
+
+- **Developer:** Campus Connect Team
+- **Repository:** [GitHub - Campus-Connect](https://github.com/NaiduBugata/Campus-Connect)
+
+---
+
+## 📞 Support
+
+For issues and questions:
+1. Check [TEST_REPORT.md](TEST_REPORT.md) for test results
+2. Review deployment logs on Render/Vercel
+3. Check browser console for frontend errors
+4. Review backend logs for API errors
+
+---
+
+## 🎯 Roadmap
+
+- [ ] Email notifications as backup
+- [ ] SMS notifications integration
+- [ ] Mobile app (React Native)
+- [ ] Analytics dashboard with charts
+- [ ] User roles (Admin, Moderator, Student)
+- [ ] Event RSVP functionality
+- [ ] Notification scheduling
+- [ ] Rich media attachments
+
+---
+
+**Last Updated:** December 30, 2025  
+**Version:** 2.1.0  
+**Status:** Production Ready ✅
