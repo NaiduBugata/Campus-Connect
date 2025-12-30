@@ -52,6 +52,20 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// DB connection test route
+app.get('/api/db-test', async (req, res) => {
+  const mongoose = require('mongoose');
+  res.status(200).json({
+    success: true,
+    dbState: mongoose.connection.readyState,
+    dbHost: mongoose.connection.host || 'Not connected',
+    env: {
+      hasMongoUri: !!process.env.MONGODB_URI,
+      isVercel: !!process.env.VERCEL
+    }
+  });
+});
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
