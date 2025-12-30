@@ -1,49 +1,92 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-function SubscribeButton({ isSubscribed, onSubscriptionChange }) {
+function SubscribeButton() {
+  const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [subscriberId, setSubscriberId] = useState(null);
 
-  const handleToggleSubscription = async () => {
+  useEffect(() => {
+    // Check if already subscribed
+    checkSubscriptionStatus();
+  }, []);
+
+  const checkSubscriptionStatus = () => {
+    if (window.webpushr) {
+      window.webpushr('fetch_id', (sid) => {
+        if (sid) {
+          setSubscribed(true);
+          setSubscriberId(sid);
+          console.log('Already subscribed:', sid);
+        }
+      });
+    }
+  };
+
+  const handleSubscribe = async () => {
     setLoading(true);
 
     try {
-      // Simulate API call (replace with actual backend call)
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const newStatus = !isSubscribed;
-      onSubscriptionChange(newStatus);
-      
-      if (newStatus) {
-        alert('✅ Successfully subscribed to notifications!');
-      } else {
-        alert('✅ Successfully unsubscribed from notifications');
+      if (!window.webpushr) {
+        alert('❌ Webpushr not loaded. Please refresh the page.');
+        return;
       }
+
+      // Request permission and subscribe
+      window.webpushr('subscribe', (result) => {
+        if (result === 'subscribed') {
+          // Get subscriber ID
+          window.webpushr('fetch_id', (sid) => {
+            if (sid) {
+              setSubscribed(true);
+              setSubscriberId(sid);
+              console.log('✅ Subscribed successfully! ID:', sid);
+              alert(`✅ Successfully subscribed to notifications!\n\nYou will now receive campus announcements.`);
+            }
+          });
+        } else if (result === 'denied') {
+          alert('❌ Notification permission denied. Please enable notifications in your browser settings.');
+        } else {
+          console.log('Subscription result:', result);
+        }
+        setLoading(false);
+      });
     } catch (error) {
       console.error('Subscription error:', error);
-      alert('❌ Failed to update subscription status');
-    } finally {
+      alert('❌ Failed to subscribe. Please try again.');
       setLoading(false);
     }
   };
 
   return (
-    <button
-      className={`subscribe-btn ${isSubscribed ? 'subscribed' : 'unsubscribed'}`}
-      onClick={handleToggleSubscription}
-      disabled={loading}
-    >
-      {loading ? (
-        <>
-          <span className="spinner"></span>
-          <span>Processing...</span>
-        </>
-      ) : (
-        <>
-          <span className="icon">{isSubscribed ? '✅' : '🔔'}</span>
-          <span>{isSubscribed ? 'Unsubscribe' : 'Subscribe'}</span>
-        </>
+    <div className="subscribe-section">
+      <button
+        className={`subscribe-btn ${subscribed ? 'subscribed' : 'unsubscribed'}`}
+        onClick={handleSubscribe}
+        disabled={loading || subscribed}
+      >
+        {loading ? (
+          <>
+            <span className="spinner"></span>
+            <span>Processing...</span>
+          </>
+        ) : subscribed ? (
+          <>
+            <span className="icon">✅</span>
+            <span>Subscribed to Notifications</span>
+          </>
+        ) : (
+          <>
+            <span className="icon">🔔</span>
+            <span>Subscribe to Notifications</span>
+          </>
+        )}
+      </button>
+      {subscriberId && (
+        <p className="subscriber-info">
+          Subscriber ID: {subscriberId.substring(0, 20)}...
+        </p>
       )}
-    </button>
+    </div>
   );
 }
 

@@ -19,17 +19,21 @@ function CreateNotification() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Get token from localStorage
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      alert('❌ You must be logged in to create notifications. Please login again.');
+      window.location.href = '/admin/login';
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Get token from localStorage
-      const token = localStorage.getItem('token');
+      console.log('Creating notification with token:', token ? 'Token exists' : 'No token');
       
-      if (!token) {
-        alert('❌ You must be logged in to create notifications');
-        return;
-      }
-
       // Call actual API
       const response = await createNotification(formData, token);
       

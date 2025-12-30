@@ -22,8 +22,13 @@
       }(window, document, 'script', 'webpushr-jssdk'));
 
       webpushr('setup', {
-        key: 'BPYbXahYivwtjJc8HGLaGRpjFcFXSQ-nuzORUSo_oA5mx2Dm-7zDLVJlbumRE4VCbuh6ABa_HRw-BzyWrxc3OsE'
+        key: 'BPYbXahYivwtjJc8HGLaGRpjFcFXSQ-nuzORUSo_oA5mx2Dm-7zDLVJlbumRE4VCbuh6ABa_HRw-BzyWrxc3OsE',
+        sw: '/webpushr-sw.js',
+        autoDismiss: 1
       });
+      
+      // Log initialization
+      console.log('Webpushr initialized with key');
     </script>
     <!-- end webpushr code -->
 
