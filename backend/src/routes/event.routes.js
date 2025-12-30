@@ -8,7 +8,7 @@ const {
 } = require('../controllers/event.controller');
 const { protect } = require('../middlewares/auth.middleware');
 
-router.get('/', getEvents);
+router.get('/', protect, getEvents);
 router.post('/', protect, createEvent);
 router.put('/:id', protect, updateEvent);
 router.delete('/:id', protect, deleteEvent);
