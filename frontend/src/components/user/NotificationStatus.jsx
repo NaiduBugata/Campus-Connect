@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import notificationAPI from '../../api/notification.api';
+import { notificationAPI } from '../../api/notification.api';
 
 function NotificationStatus({ isSubscribed }) {
   const [stats, setStats] = useState({
