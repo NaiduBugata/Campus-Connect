@@ -3,13 +3,14 @@ const axios = require('axios');
 class WebpushrConfig {
   constructor() {
     this.publicKey = process.env.WEBPUSHR_PUBLIC_KEY || '';
+    this.restApiKey = process.env.WEBPUSHR_REST_API_KEY || '';
     this.authToken = process.env.WEBPUSHR_AUTH_TOKEN || '';
     this.apiEndpoint = 'https://api.webpushr.com/v1';
   }
 
   getHeaders() {
     return {
-      'webpushrKey': this.publicKey,
+      'webpushrKey': this.restApiKey,
       'webpushrAuthToken': this.authToken,
       'Content-Type': 'application/json'
     };
